@@ -1,0 +1,22 @@
+# Source code and dependencies
+pdfcreator-wails/
+
+# Fonts and user data
+fonts/
+data/
+output/
+
+# Build artifacts
+build/
+dist/
+*.exe
+*.app/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Legacy files
+PDFCreator.py
+pdfcreator.spec
+pdfcreator.exe
