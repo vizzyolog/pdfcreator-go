@@ -1,16 +1,11 @@
-# Source code and dependencies
-pdfcreator-wails/
-
-# Fonts and user data
-fonts/
-data/
-output/
-
 # Build artifacts
 build/
 dist/
-*.exe
-*.app/
+
+# User data and generated files
+output/
+data/
+fonts/
 
 # OS files
 .DS_Store
