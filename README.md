@@ -27,6 +27,10 @@ PDFCreator/
 └── PDFCreatorGo.exe           # Готовый билд для Windows (amd64)
 ```
 
+## Готовые релизы
+
+Скачать собранные `.exe` (Windows) и `.app` (macOS) можно в разделе [Releases](https://github.com/vizzyolog/pdfcreator-go/releases).
+
 ## Установка окружения
 
 ### macOS
