@@ -7,6 +7,14 @@ output/
 data/
 fonts/
 
+# Release binaries
+PDFCreatorGo.exe
+PDFCreatorGo.app/
+PDFCreatorGo*.zip
+
+# Old project
+pdfcreator-go/
+
 # OS files
 .DS_Store
 Thumbs.db
