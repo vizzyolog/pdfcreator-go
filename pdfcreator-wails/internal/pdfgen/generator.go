@@ -57,8 +57,9 @@ func (g *Generator) GenerateImageTemplate(templatePath string, fields []config.F
 	warnings := g.checkWrapWarnings(fittedFields, rows, columns)
 
 	generated := []string{}
+	usedNames := map[string]int{}
 	for rowIdx, row := range rows {
-		outputName := fmt.Sprintf("diploma_%03d.pdf", rowIdx+1)
+		outputName := g.filenameForRow(row, columns, rowIdx, usedNames)
 		outputPath := filepath.Join(outputDir, outputName)
 		if err := g.generateSingle(templatePath, fittedFields, row, columns, outputPath); err != nil {
 			return nil, err
@@ -108,6 +109,71 @@ func (g *Generator) generateSingle(templatePath string, fields []config.Field, r
 	}
 
 	return pdf.OutputFileAndClose(outputPath)
+}
+
+func (g *Generator) filenameForRow(row []string, columns []string, rowIdx int, usedNames map[string]int) string {
+	firstName := g.findColumnValue(row, columns, []string{"имя", "name", "first name"})
+	lastName := g.findColumnValue(row, columns, []string{"фамилия", "surname", "last name", "family name"})
+
+	baseName := ""
+	if firstName != "" && lastName != "" {
+		baseName = fmt.Sprintf("%s_%s", firstName, lastName)
+	} else if lastName != "" {
+		baseName = lastName
+	} else if firstName != "" {
+		baseName = firstName
+	}
+
+	if baseName == "" {
+		return fmt.Sprintf("diploma_%03d.pdf", rowIdx+1)
+	}
+
+	baseName = sanitizeFilename(baseName)
+	if baseName == "" {
+		return fmt.Sprintf("diploma_%03d.pdf", rowIdx+1)
+	}
+
+	usedNames[baseName]++
+	count := usedNames[baseName]
+	if count == 1 {
+		return baseName + ".pdf"
+	}
+	return fmt.Sprintf("%s_%d.pdf", baseName, count)
+}
+
+func (g *Generator) findColumnValue(row []string, columns []string, candidates []string) string {
+	for i, col := range columns {
+		normalized := strings.ToLower(strings.TrimSpace(col))
+		for _, cand := range candidates {
+			if normalized == cand {
+				if i < len(row) {
+					return strings.TrimSpace(row[i])
+				}
+				return ""
+			}
+		}
+	}
+	return ""
+}
+
+func sanitizeFilename(name string) string {
+	// Replace spaces and slashes with underscores.
+	name = strings.ReplaceAll(name, " ", "_")
+	name = strings.ReplaceAll(name, "/", "_")
+	name = strings.ReplaceAll(name, "\\", "_")
+	name = strings.ReplaceAll(name, ":", "_")
+	name = strings.ReplaceAll(name, "*", "_")
+	name = strings.ReplaceAll(name, "?", "_")
+	name = strings.ReplaceAll(name, "\"", "_")
+	name = strings.ReplaceAll(name, "<", "_")
+	name = strings.ReplaceAll(name, ">", "_")
+	name = strings.ReplaceAll(name, "|", "_")
+	// Trim leading/trailing dots and spaces.
+	name = strings.Trim(name, ". _")
+	if len(name) > 100 {
+		name = name[:100]
+	}
+	return name
 }
 
 // FitFields fits font sizes for the given sample rows and returns updated fields.
